@@ -3,7 +3,6 @@ use sqlx::PgPool;
 use sqlx::Pool;
 use sqlx::Error;
 use sqlx::postgres::Postgres;
-use rocket::fairing::AdHoc;
 
 pub async fn init_db() -> PgPool {
     dotenv::dotenv().ok();

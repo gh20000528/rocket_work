@@ -1,6 +1,7 @@
 use crate::models::todo::Todo;
 use crate::models::user::User;
 use serde::Serialize;
+use uuid::Uuid;
 
 #[derive(Serialize)]
 pub struct GenericResponse {
@@ -31,4 +32,11 @@ pub struct UserListResponse {
     pub status: String,
     pub results: usize,
     pub users: Vec<User>
+}
+
+#[derive(Serialize, Debug)]
+pub struct CaptchaResponse {
+    pub captcha_image: String,
+    pub captcha_id: String,
+    pub expires_in: i64,  // 秒数
 }
