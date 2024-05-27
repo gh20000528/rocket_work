@@ -1,4 +1,4 @@
-use jsonwebtoken::{encode, Header, EncodingKey};
+use jsonwebtoken::{encode, Header, EncodingKey, decode, DecodingKey, Validation, Algorithm, TokenData};
 use serde::{Serialize, Deserialize};
 use chrono::{Utc, Duration};
 
@@ -22,4 +22,14 @@ pub async fn generate_jwt(username: &str) -> Result<String, jsonwebtoken::errors
 
     let sercet = "kenkone8282";
     encode(&Header::default(), &claims, &EncodingKey::from_secret(sercet.as_ref()))
+}
+
+// 驗證 JWT
+pub fn validate_jwt(token: &str) -> Result<TokenData<Claims>, jsonwebtoken::errors::Error> {
+    let secret = "kenkone8282";
+    decode::<Claims>(
+        token,
+        &DecodingKey::from_secret(secret.as_ref()),
+        &Validation::new(Algorithm::HS256),
+    )
 }

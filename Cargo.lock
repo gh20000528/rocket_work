@@ -1783,6 +1783,7 @@ dependencies = [
  "env_logger",
  "jsonwebtoken",
  "log",
+ "regex",
  "rocket",
  "rocket_cors",
  "serde",
