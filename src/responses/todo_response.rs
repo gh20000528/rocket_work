@@ -1,4 +1,3 @@
-use crate::models::todo::Todo;
 use crate::models::user::User;
 use serde::Serialize;
 use uuid::Uuid;
@@ -9,23 +8,6 @@ pub struct GenericResponse {
     pub message: String,
 }
 
-#[derive(Serialize, Debug)]
-pub struct TodoDate {
-    pub todo: Todo
-}
-
-#[derive(Serialize, Debug)]
-pub struct SingleTodoResponse {
-    pub status: String,
-    pub data: TodoDate
-}
-
-#[derive(Serialize, Debug)]
-pub struct TodoListResponse {
-    pub status: String,
-    pub results: usize,
-    pub todos: Vec<Todo>
-}
 
 #[derive(Serialize, Debug)]
 pub struct UserListResponse {
@@ -39,4 +21,26 @@ pub struct CaptchaResponse {
     pub captcha_image: String,
     pub captcha_id: String,
     pub expires_in: i64,  // 秒数
+}
+
+
+
+#[derive(Serialize)]
+pub struct LogoutResponse {
+    pub status: String,
+}
+
+#[derive(Serialize)]
+pub struct UserInfoResponse {
+    pub username: String,
+    pub role: String,
+    pub permissions: Vec<String>
+}
+
+
+#[derive(Serialize)]
+pub struct LoginResponse {
+    pub status: String,
+    pub message: String,
+    pub token: Option<String>, // Add token to response
 }

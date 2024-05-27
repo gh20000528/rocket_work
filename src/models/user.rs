@@ -14,6 +14,24 @@ pub struct User {
     role_id: i32,
 }
 
+#[derive(Serialize, Deserialize, FromRow, Debug)]
+pub struct UserInfo {
+    pub id: Option<Uuid>,
+    pub username: String,
+    pub role_id: i32,
+}
+
+#[derive(Serialize, Deserialize, FromRow, Debug)]
+pub struct Role {
+    pub id: i32,
+    pub role_name: String
+}
+#[derive(Serialize, Deserialize, FromRow, Debug)]
+pub struct Permission {
+    pub id: i32,
+    pub permissions_name: String,
+}
+
 
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct RegisterRequest {
@@ -29,4 +47,16 @@ pub struct LoginRequest {
     pub password: String,
     pub captcha_id: String,
     pub captcha_value: String
+}
+
+#[derive(Serialize, Deserialize, FromRow, Debug)]
+pub struct DeleteUserRequest {
+    pub uid: String,
+}
+
+
+#[derive(Serialize, Deserialize, FromRow, Debug)]
+pub struct EditRequest {
+    pub uid: String,
+    pub password: String,
 }
