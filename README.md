@@ -1,30 +1,52 @@
 
-Rocket User Registration API
+# Rocket User Registration API
 Overview
 This project is a user registration and management API built using Rust, Rocket, and SQLx. The API supports user registration, login, role management, and various user-related operations.
 
-Features
-User Registration
-User Login
-User Information Retrieval
-User Password Management
-Role Management
-Permission Management
-Captcha Generation and Validation
-Technologies Used
-Rust
-Rocket
-SQLx
-bcrypt
-serde
-dotenv
-PostgreSQL (or your chosen database)
-Prerequisites
-Rust (latest stable version)
-Cargo (comes with Rust)
-PostgreSQL (or another database supported by SQLx)
-dotenv
-Getting Started
+## Features
+- User Registration
+- User Login
+- User Information Retrieval
+- User Password Management
+- Role Management
+- Permission Management
+- Captcha Generation and Validation
+
+## Technologies Used
+- Rust
+- Rocket
+- SQLx
+- bcrypt
+- serde
+- dotenv
+- PostgreSQL (or your chosen database)
+- Prerequisites
+- Rust (latest stable version)
+- Cargo (comes with Rust)
+- PostgreSQL (or another database supported by SQLx)
+- dotenv
+## Getting Started
+- run code -> cargo watch -q -c -w src/ -x run
 
 
-# run code -> cargo watch -q -c -w src/ -x run
+```
+src
+├── controllers
+│   ├── mod.rs
+│   ├── permission_controller.rs
+│   └── user_controller.rs
+├── db.rs
+├── main.rs
+├── models
+│   ├── captcha.rs
+│   ├── mod.rs
+│   ├── permission.rs
+│   └── user.rs
+├── responses
+│   ├── mod.rs
+│   └── response.rs
+└── tools
+    ├── jwt.rs
+    ├── mod.rs
+    └── permission_control.rs
+```
