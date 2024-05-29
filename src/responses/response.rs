@@ -1,4 +1,4 @@
-use crate::models::user::User;
+use crate::models::user::UserWithRole;
 use serde::Serialize;
 use uuid::Uuid;
 
@@ -12,8 +12,7 @@ pub struct GenericResponse {
 #[derive(Serialize, Debug)]
 pub struct UserListResponse {
     pub status: String,
-    pub results: usize,
-    pub data: Vec<User>
+    pub data: Vec<UserWithRole>
 }
 
 #[derive(Serialize, Debug)]

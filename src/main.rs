@@ -7,7 +7,7 @@ use dotenv::dotenv;
 
 
 use crate::controllers::user_controller::{ get_users, register, generate_captcha_handler, login, logout, TokenBlack, get_userinfo, soft_delete_user, edit_password };
-use crate::controllers::permission_controller::{ permission_list, get_role_permission, add_role_permissiom, delete_role_permission };
+use crate::controllers::permission_controller::{ permission_list, get_role_permission, add_role_permissiom, delete_role_permission, get_role };
 use crate::models::captcha::CaptchaInfo;
 
 mod db;
@@ -65,7 +65,8 @@ async fn rocket() -> _ {
             permission_list,
             get_role_permission,
             add_role_permissiom, 
-            delete_role_permission
+            delete_role_permission,
+            get_role
         ]
     )
 }

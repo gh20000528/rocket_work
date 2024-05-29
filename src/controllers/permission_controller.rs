@@ -4,8 +4,25 @@ use rocket::serde::json::Json;
 use rocket::State;
 use sqlx::PgPool;
 
-use crate::models::permission::{RolePermissionRequest, Permission, PermissionListResponse, RolePermission, RolePermissionResponse, RoleWithPermissions};
+use crate::models::permission::{RolePermissionRequest, Permission, PermissionListResponse, RolePermission, RolePermissionResponse, RoleWithPermissions, Role, RoleResponse};
 use crate::responses::response::GenericResponse;
+
+
+#[get("/role")]
+pub async fn get_role(
+    pool: &State<PgPool>
+) -> Result<Json<RoleResponse>, Status> {
+    match sqlx::query_as!(Role, "SELECT id, role_name FROM roles")
+        .fetch_all(pool.inner())
+        .await
+    {
+        Ok(roles) => Ok(Json(RoleResponse { role: roles })),
+        Err(e) => {
+            error!("Error fetching roles: {}", e);
+            Err(Status::InternalServerError)
+        }
+    }
+}
 
 #[get("/permissions")]
 pub async fn permission_list(
@@ -32,7 +49,7 @@ pub async fn permission_list(
 }
 
 
-#[get("/userRolePermission")]
+#[get("/permission/userRolePermission")]
 pub async fn get_role_permission(
     pool: &State<PgPool>
 )-> Result<Json<RolePermissionResponse>, Status> {
@@ -92,7 +109,7 @@ pub async fn get_role_permission(
     }
 }
 
-#[post("/addRolePermission", format = "json", data = "<request>")]
+#[post("/permission/addRolePermission", format = "json", data = "<request>")]
 pub async fn add_role_permissiom(
     request: Json<RolePermissionRequest>,
     pool: &State<PgPool>
@@ -180,7 +197,7 @@ pub async fn add_role_permissiom(
     }    
 }
 
-#[post("/deleteRolePermission", format = "json", data = "<request>")]
+#[post("/permission/deleteRolePermission", format = "json", data = "<request>")]
 pub async fn delete_role_permission(
     request: Json<RolePermissionRequest>,
     pool: &State<PgPool>
@@ -274,4 +291,6 @@ pub async fn delete_role_permission(
         }
    }
 }
+
+
 
