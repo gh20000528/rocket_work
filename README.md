@@ -26,7 +26,6 @@
 ## Getting Started
 - run code -> cargo watch -q -c -w src/ -x run
 
-
 ```
 src
 ├── controllers
