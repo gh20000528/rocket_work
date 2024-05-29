@@ -13,7 +13,7 @@ pub struct GenericResponse {
 pub struct UserListResponse {
     pub status: String,
     pub results: usize,
-    pub users: Vec<User>
+    pub data: Vec<User>
 }
 
 #[derive(Serialize, Debug)]

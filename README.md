@@ -93,3 +93,6 @@ If you have run out of energy or time for your project, put a note at the top of
 # rocket_work
 # rocket_work
 # rocket_work
+
+
+# run code -> cargo watch -q -c -w src/ -x run

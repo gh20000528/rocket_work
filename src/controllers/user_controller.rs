@@ -13,9 +13,10 @@ use log::{info, warn, error};
 
 
 use crate::models::user::{DeleteUserRequest, LoginRequest, Permission, RegisterRequest, Role, User, UserInfo, EditRequest };
-use crate::responses::todo_response::{UserListResponse, CaptchaResponse, UserInfoResponse, GenericResponse, LoginResponse};
+use crate::responses::response::{UserListResponse, CaptchaResponse, UserInfoResponse, GenericResponse, LoginResponse};
 use crate::models::captcha::{CaptchaStore, generate_captcha};
-use crate::tools::jwt::{generate_jwt, validate_jwt, Claims};
+use crate::tools::jwt::{generate_jwt, validate_jwt};
+use crate::tools::permission_control::UserWithPermissions;
 
 
 // init token black
@@ -79,7 +80,7 @@ fn valided_password(password: & str) -> bool {
 
 // api
 // user list
-#[get("/users")]
+#[get("/user")]
 pub async fn get_users(pool: &State<PgPool>) -> Result<Json<UserListResponse>, Status> {
     let users: Vec<User> = match sqlx::query_as::<_, User>("SELECT * FROM users")
         .fetch_all(pool.inner())
@@ -94,14 +95,22 @@ pub async fn get_users(pool: &State<PgPool>) -> Result<Json<UserListResponse>, S
     Ok(Json(UserListResponse {
         status: "success".to_string(),
         results: users.len(),
-        users
+        data: users
     }))
 }
 
 // register
-#[post("/register", format = "json", data = "<register_data>")]
-pub async fn register(register_data: Json<RegisterRequest>, pool: &State<PgPool>) -> Result<Json<GenericResponse>, Status> {
+#[post("/user/register", format = "json", data = "<register_data>")]
+pub async fn register(
+    register_data: Json<RegisterRequest>,
+    pool: &State<PgPool>,
+    user_with_permissions: UserWithPermissions
+) -> Result<Json<GenericResponse>, Status> {
     let reg_data = register_data.into_inner();
+
+    if !user_with_permissions.permissions.contains("newUser") {
+        return  Err(Status::Unauthorized);
+    }
 
     if !valided_password(&reg_data.password) {
         return Err(Status::BadRequest);
@@ -124,7 +133,7 @@ pub async fn register(register_data: Json<RegisterRequest>, pool: &State<PgPool>
 }
 
 // captcha
-#[get("/captcha")]
+#[get("/user/captcha")]
 pub async fn generate_captcha_handler(store: &State<CaptchaStore>) -> Result<Json<CaptchaResponse>, Status> {
     let (captcha_id, captcha_image) = generate_captcha(store.inner()).await;
 
@@ -138,7 +147,7 @@ pub async fn generate_captcha_handler(store: &State<CaptchaStore>) -> Result<Jso
 }
 
 // login
-#[post("/login", format = "json", data = "<login_data>")]
+#[post("/user/login", format = "json", data = "<login_data>")]
 pub async fn login(
     login_data: Json<LoginRequest>,
     pool: &State<PgPool>,
@@ -148,7 +157,7 @@ pub async fn login(
     let login = login_data.into_inner();
     info!("Attempting to login user: {}", login.username);
     // vaild captcha
-    validate_captcha(&login.captcha_id, &login.captcha_value, captcha_store.inner()).await;
+    validate_captcha(&login.captchaId, &login.captcha, captcha_store.inner()).await;
 
     // user and password validation
     let result = sqlx::query!(
@@ -200,7 +209,7 @@ pub async fn login(
 
 // logout 
 // Implement the logout handler
-#[post("/logout")]
+#[post("/user/logout")]
 pub async fn logout(
     token_black: &State<TokenBlack>,
     headers: RequestHeaders<'_>
@@ -233,7 +242,7 @@ pub async fn logout(
 
 
 // user info 
-#[get("/userinfo")]
+#[get("/user/userinfo")]
 pub async fn get_userinfo(
     headers: RequestHeaders<'_>,
     pool: &State<PgPool>,
@@ -320,13 +329,19 @@ pub async fn get_userinfo(
 }
 
 // delete user
-#[delete("/user/softDeleted", format = "json", data = "<delete_data>")]
+#[post("/user/softDeleted", format = "json", data = "<delete_data>")]
 pub async fn soft_delete_user(
     delete_data: Json<DeleteUserRequest>,
-    pool: &State<PgPool>
+    pool: &State<PgPool>,
+    user_with_permissions: UserWithPermissions
 ) -> Result<Json<GenericResponse>, Status> {
     let delete_request = delete_data.into_inner();
-    let uuid = match uuid::Uuid::parse_str(&delete_request.uid) {
+
+    if !user_with_permissions.permissions.contains("deletedUser") {
+        return Err(Status::Forbidden);
+    }
+
+    let uuid = match uuid::Uuid::parse_str(&delete_request.Uid) {
         Ok(u) => u,
         Err(_) => return Err(Status::BadRequest)
     };
@@ -338,7 +353,7 @@ pub async fn soft_delete_user(
     .execute(pool.inner())
     .await {
         Ok(_) => {
-            info!("Soft deleted user id :{}", delete_request.uid);
+            info!("Soft deleted user id :{}", delete_request.Uid);
             Ok(Json(GenericResponse { status: "success".to_string(), message: "User soft deleted success".to_string() }))
         },
         Err(e) => {
@@ -352,19 +367,25 @@ pub async fn soft_delete_user(
 #[post("/user/editpassword", format = "json", data = "<edit_data>")]
 pub async fn edit_password(
     edit_data: Json<EditRequest>,
-    pool: &State<PgPool>
+    pool: &State<PgPool>,
+    user_with_permissions: UserWithPermissions
 ) -> Result<Json<GenericResponse>, Status> {
     let edit_req = edit_data.into_inner();
-    let uuid = match uuid::Uuid::parse_str(&edit_req.uid) {
+
+    if !user_with_permissions.permissions.contains("editPassword") {
+        return Err(Status::Forbidden);
+    }
+
+    let uuid = match uuid::Uuid::parse_str(&edit_req.Uid) {
         Ok(u) => u,
         Err(_) => return Err(Status::BadRequest)
     };
 
-    if !valided_password(&edit_req.password) {
+    if !valided_password(&edit_req.newPassword) {
         return Err(Status::BadRequest);
     }
 
-    let hashed_password = match bcrypt::hash(&edit_req.password, bcrypt::DEFAULT_COST) {
+    let hashed_password = match bcrypt::hash(&edit_req.newPassword, bcrypt::DEFAULT_COST) {
         Ok(h) => h,
         Err(_) => return Err(Status::InternalServerError)
     };
