@@ -7,11 +7,11 @@ use chrono::{NaiveDateTime};
 pub struct User {
     id: Option<Uuid>,
     username: String,
-    password: String,
     voice_attachment: bool,
     created_at: Option<NaiveDateTime>,
     updated_at: Option<NaiveDateTime>,
     role_id: i32,
+    deleted: bool
 }
 
 #[derive(Serialize, Deserialize, FromRow, Debug)]
@@ -45,18 +45,18 @@ pub struct RegisterRequest {
 pub struct LoginRequest {
     pub username: String,
     pub password: String,
-    pub captcha_id: String,
-    pub captcha_value: String
+    pub captcha: String,
+    pub captchaId: String,
 }
 
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct DeleteUserRequest {
-    pub uid: String,
+    pub Uid: String,
 }
 
 
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct EditRequest {
-    pub uid: String,
-    pub password: String,
+    pub Uid: String,
+    pub newPassword: String,
 }
