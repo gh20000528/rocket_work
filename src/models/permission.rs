@@ -39,7 +39,19 @@ pub struct RolePermissionResponse {
 
 #[derive(Deserialize)]
 pub struct RolePermissionRequest {
+    #[serde(rename = "roleId")]
     pub role_id: i32,
+    #[serde(rename = "permissionName")]
     pub permissions_name: String,
 }
 
+#[derive(Serialize, Deserialize, FromRow, Debug)]
+pub struct Role {
+    pub id: i32,
+    pub role_name: String
+}
+
+#[derive(Serialize)]
+pub struct RoleResponse {
+    pub role: Vec<Role>,
+}

@@ -15,6 +15,16 @@ pub struct User {
 }
 
 #[derive(Serialize, Deserialize, FromRow, Debug)]
+pub struct UserWithRole {
+    pub id: Option<Uuid>,
+    pub username: String,
+    pub voice_attachment: Option<bool>,
+    pub role_id: i32,
+    pub deleted: Option<bool>,
+    pub role_name: String
+}
+
+#[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct UserInfo {
     pub id: Option<Uuid>,
     pub username: String,
@@ -32,14 +42,14 @@ pub struct Permission {
     pub permissions_name: String,
 }
 
-
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct RegisterRequest {
     pub username: String,
     pub password: String,
     pub voice_attachment: bool,
-    pub role_id: i32,
+    pub role_id: String,
 }
+
 
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct LoginRequest {
@@ -60,3 +70,4 @@ pub struct EditRequest {
     pub Uid: String,
     pub newPassword: String,
 }
+

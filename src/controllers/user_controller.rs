@@ -12,7 +12,7 @@ use sqlx::PgPool;
 use log::{info, warn, error};
 
 
-use crate::models::user::{DeleteUserRequest, LoginRequest, Permission, RegisterRequest, Role, User, UserInfo, EditRequest };
+use crate::models::user::{DeleteUserRequest, LoginRequest, Permission, RegisterRequest, Role, UserWithRole, UserInfo, EditRequest };
 use crate::responses::response::{UserListResponse, CaptchaResponse, UserInfoResponse, GenericResponse, LoginResponse};
 use crate::models::captcha::{CaptchaStore, generate_captcha};
 use crate::tools::jwt::{generate_jwt, validate_jwt};
@@ -72,9 +72,9 @@ async fn validate_captcha(captcha_id: &str, captcha_value: &str, store: &Captcha
     }
 }
 
-fn valided_password(password: & str) -> bool {
-    let re = Regex::new(r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$").unwrap();
-    re.is_match(password)
+fn valided_password(password: &str) -> bool {
+    let re = Regex::new(r"^[A-Za-z\d]{8,}$").unwrap();
+    re.is_match(password) && password.chars().any(|c| c.is_alphabetic()) && password.chars().any(|c| c.is_numeric())
 }
 
 
@@ -82,20 +82,27 @@ fn valided_password(password: & str) -> bool {
 // user list
 #[get("/user")]
 pub async fn get_users(pool: &State<PgPool>) -> Result<Json<UserListResponse>, Status> {
-    let users: Vec<User> = match sqlx::query_as::<_, User>("SELECT * FROM users")
-        .fetch_all(pool.inner())
-        .await {
-            Ok(users) => users,
-            Err(e) => {
-                println!("{}", e);
-                return Err(Status::InternalServerError)
-            }
-        };
+    let user: Vec<UserWithRole> = match sqlx::query_as!(
+        UserWithRole,
+        r#"
+            SELECT users.id, users.username, 
+            users.voice_attachment, users.role_id, users.deleted, roles.role_name
+            FROM users
+            JOIN roles ON users.role_id = roles.id
+        "#
+    )
+    .fetch_all(pool.inner())
+    .await {
+        Ok(users) => users,
+        Err(e) => {
+            error!("get user list error");
+            return Err(Status::InternalServerError);
+        }
+    };
 
     Ok(Json(UserListResponse {
         status: "success".to_string(),
-        results: users.len(),
-        data: users
+        data: user
     }))
 }
 
@@ -121,9 +128,14 @@ pub async fn register(
         Err(_) => return Err(Status::InternalServerError)
     };
 
+    let role_id = match reg_data.role_id.parse::<i32>() {
+        Ok(id) => id,
+        Err(_) => return Err(Status::BadRequest),  // 转换失败时返回 400 Bad Request
+    };
+
     match sqlx::query!(
         "INSERT INTO users (username, password, voice_attachment, role_id) VALUES($1, $2, $3, $4) RETURNING id",
-        reg_data.username, hashed_password, reg_data.voice_attachment, reg_data.role_id
+        reg_data.username, hashed_password, reg_data.voice_attachment, role_id
     )
     .fetch_one(pool.inner())
     .await {
