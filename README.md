@@ -1,7 +1,5 @@
 
 # Rocket User Registration API
-Overview
-This project is a user registration and management API built using Rust, Rocket, and SQLx. The API supports user registration, login, role management, and various user-related operations.
 
 ## Features
 - User Registration
