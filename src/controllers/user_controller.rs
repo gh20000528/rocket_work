@@ -57,7 +57,7 @@ impl<'r> FromRequest<'r> for RequestHeaders<'r> {
 
 
 // tool function
-async fn validate_captcha(captcha_id: &str, captcha_value: &str, store: &CaptchaStore) -> Result<(), Status> {
+pub async fn validate_captcha(captcha_id: &str, captcha_value: &str, store: &CaptchaStore) -> Result<(), Status> {
     let mut store = store.lock().expect("Faild to lock store");
     if let Some(captcha_info) = store.get(captcha_id) {
         if captcha_info.expires < SystemTime::now() || captcha_info.captcha != captcha_value {
