@@ -1,0 +1,13 @@
+FROM rust
+
+ENV ROCKET_ADDRESS=0.0.0.0
+ENV ROCKET_PORT=8088
+
+WORKDIR /src
+COPY . .
+
+EXPOSE 8088
+
+RUN cargo build
+
+CMD [ "cargo", "run" ]
