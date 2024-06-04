@@ -78,8 +78,14 @@ fn valided_password(password: &str) -> bool {
 }
 
 
-// api
-// user list
+#[utoipa::path(
+    get,
+    path = "/api/user",
+    tag = "User",
+    responses(
+        (status = 200, description = "Get all users", body = UserListResponse)
+    )
+)]
 #[get("/user")]
 pub async fn get_users(pool: &State<PgPool>) -> Result<Json<UserListResponse>, Status> {
     let user: Vec<UserWithRole> = match sqlx::query_as!(
@@ -106,7 +112,15 @@ pub async fn get_users(pool: &State<PgPool>) -> Result<Json<UserListResponse>, S
     }))
 }
 
-// register
+#[utoipa::path(
+    post,
+    path = "/api/user/register",
+    tag = "User",
+    request_body = RegisterRequest,
+    responses(
+        (status = 200, description = "Register user", body = GenericResponse)
+    ),
+)]
 #[post("/user/register", format = "json", data = "<register_data>")]
 pub async fn register(
     register_data: Json<RegisterRequest>,
@@ -144,7 +158,14 @@ pub async fn register(
     }
 }
 
-// captcha
+#[utoipa::path(
+    get,
+    path = "/api/user/captcha",
+    tag = "User",
+    responses(
+        (status = 200, description = "Verify code", body = CaptchaResponse)
+    ),
+)]
 #[get("/user/captcha")]
 pub async fn generate_captcha_handler(store: &State<CaptchaStore>) -> Result<Json<CaptchaResponse>, Status> {
     let (captcha_id, captcha_image) = generate_captcha(store.inner()).await;
@@ -158,7 +179,15 @@ pub async fn generate_captcha_handler(store: &State<CaptchaStore>) -> Result<Jso
     Ok(Json(captcha_response))
 }
 
-// login
+#[utoipa::path(
+    post,
+    path = "/api/user/login",
+    tag = "User",
+    request_body = LoginRequest,
+    responses(
+        (status = 200, description = "Login", body = LoginResponse)
+    ),
+)]
 #[post("/user/login", format = "json", data = "<login_data>")]
 pub async fn login(
     login_data: Json<LoginRequest>,
@@ -219,7 +248,14 @@ pub async fn login(
 
 }
 
-// logout 
+#[utoipa::path(
+    post,
+    path = "/api/user/logout",
+    tag = "User",
+    responses(
+        (status = 200, description = "Logout", body = GenericResponse)
+    ),
+)] 
 // Implement the logout handler
 #[post("/user/logout")]
 pub async fn logout(
@@ -253,7 +289,14 @@ pub async fn logout(
 }
 
 
-// user info 
+#[utoipa::path(
+    get,
+    path = "/api/user/userinfo",
+    tag = "User",
+    responses(
+        (status = 200, description = "Get user info", body = UserInfoResponse)
+    )
+)]
 #[get("/user/userinfo")]
 pub async fn get_userinfo(
     headers: RequestHeaders<'_>,
@@ -340,7 +383,17 @@ pub async fn get_userinfo(
 
 }
 
-// delete user
+#[utoipa::path(
+    post,
+    path = "/api/user/softDeleted",
+    tag = "User",
+    responses(
+        (status = 200, description = "Disable user", body = GenericResponse)
+    ),
+    params(
+        ("id", description="User id")
+    )
+)]
 #[post("/user/softDeleted", format = "json", data = "<delete_data>")]
 pub async fn soft_delete_user(
     delete_data: Json<DeleteUserRequest>,
@@ -375,7 +428,15 @@ pub async fn soft_delete_user(
     }
 }
 
-// edit user
+#[utoipa::path(
+    post,
+    path = "/api/user/editpassword",
+    tag = "User",
+    request_body = EditRequest,
+    responses(
+        (status = 200, description = "Change password", body = GenericResponse)
+    ),
+)]
 #[post("/user/editpassword", format = "json", data = "<edit_data>")]
 pub async fn edit_password(
     edit_data: Json<EditRequest>,

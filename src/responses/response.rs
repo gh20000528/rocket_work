@@ -1,15 +1,16 @@
 use crate::models::user::UserWithRole;
 use serde::Serialize;
+use utoipa::ToResponse;
 use uuid::Uuid;
 
-#[derive(Serialize)]
+#[derive(Serialize, ToResponse)]
 pub struct GenericResponse {
     pub status: String,
     pub message: String,
 }
 
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, ToResponse)]
 pub struct UserListResponse {
     pub status: String,
     pub data: Vec<UserWithRole>
@@ -29,7 +30,7 @@ pub struct LogoutResponse {
     pub status: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToResponse)]
 pub struct UserInfoResponse {
     pub username: String,
     pub role: String,
