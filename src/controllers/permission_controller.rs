@@ -7,7 +7,14 @@ use sqlx::PgPool;
 use crate::models::permission::{RolePermissionRequest, Permission, PermissionListResponse, RolePermission, RolePermissionResponse, RoleWithPermissions, Role, RoleResponse};
 use crate::responses::response::GenericResponse;
 
-
+#[utoipa::path(
+    get,
+    path = "/api/role",
+    tag = "Role",
+    responses(
+        (status = 200, description = "Get role list", body = RoleResponse)
+    )
+)]
 #[get("/role")]
 pub async fn get_role(
     pool: &State<PgPool>
@@ -24,6 +31,14 @@ pub async fn get_role(
     }
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/permissions",
+    tag = "Permission",
+    responses(
+        (status = 200, description = "Get permission list", body = PermissionListResponse)
+    )
+)]
 #[get("/permissions")]
 pub async fn permission_list(
     pool: &State<PgPool>
@@ -48,7 +63,14 @@ pub async fn permission_list(
     }
 }
 
-
+#[utoipa::path(
+    get,
+    path = "/api/permission/userRolePermission",
+    tag = "Permission",
+    responses(
+        (status = 200, description = "Get permission of role of user", body = PermissionListResponse)
+    )
+)]
 #[get("/permission/userRolePermission")]
 pub async fn get_role_permission(
     pool: &State<PgPool>
@@ -109,6 +131,15 @@ pub async fn get_role_permission(
     }
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/permission/addRolePermission",
+    tag = "Permission",
+    request_body = RolePermissionRequest,
+    responses(
+        (status = 200, description = "Create a permission of role", body = GenericResponse)
+    )
+)]
 #[post("/permission/addRolePermission", format = "json", data = "<request>")]
 pub async fn add_role_permissiom(
     request: Json<RolePermissionRequest>,
@@ -197,6 +228,15 @@ pub async fn add_role_permissiom(
     }    
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/permission/deleteRolePermission",
+    tag = "Permission",
+    request_body = RolePermissionRequest,
+    responses(
+        (status = 200, description = "Delete a permission of role", body = GenericResponse)
+    )
+)]
 #[post("/permission/deleteRolePermission", format = "json", data = "<request>")]
 pub async fn delete_role_permission(
     request: Json<RolePermissionRequest>,

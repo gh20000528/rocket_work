@@ -1,9 +1,10 @@
 use sqlx::FromRow;
 use serde::{Serialize, Deserialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 use chrono::{NaiveDateTime};
 
-#[derive(Serialize, Deserialize, FromRow, Debug)]
+#[derive(Serialize, Deserialize, FromRow, Debug, ToSchema)]
 pub struct User {
     id: Option<Uuid>,
     username: String,
@@ -24,7 +25,7 @@ pub struct UserWithRole {
     pub role_name: String
 }
 
-#[derive(Serialize, Deserialize, FromRow, Debug)]
+#[derive(Serialize, Deserialize, FromRow, Debug, ToSchema)]
 pub struct UserInfo {
     pub id: Option<Uuid>,
     pub username: String,

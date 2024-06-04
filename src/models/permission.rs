@@ -1,10 +1,11 @@
 use sqlx::FromRow;
 use serde::{Serialize, Deserialize};
+use utoipa::{ToResponse, ToSchema};
 use uuid::Uuid;
 use chrono::{NaiveDateTime};
 
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct Permission {
     pub id: i32,
     pub permissions_name: String,
@@ -17,7 +18,7 @@ pub struct PermissionListResponse {
 }
 
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct RolePermission {
     pub id: i32,
     pub name: String,
@@ -45,13 +46,13 @@ pub struct RolePermissionRequest {
     pub permissions_name: String,
 }
 
-#[derive(Serialize, Deserialize, FromRow, Debug)]
+#[derive(Serialize, Deserialize, FromRow, Debug, ToSchema)]
 pub struct Role {
     pub id: i32,
     pub role_name: String
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, ToResponse)]
 pub struct RoleResponse {
     pub role: Vec<Role>,
 }

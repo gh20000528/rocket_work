@@ -4,7 +4,8 @@ use std::sync::Mutex;
 use std::collections::HashMap;
 use rocket_cors::{AllowedHeaders, AllowedOrigins, CorsOptions};
 use dotenv::dotenv;
-
+use utoipa::OpenApi;
+use utoipa_scalar::{Scalar, Servable};
 
 use crate::controllers::user_controller::{ get_users, register, generate_captcha_handler, login, logout, TokenBlack, get_userinfo, soft_delete_user, edit_password };
 use crate::controllers::permission_controller::{ permission_list, get_role_permission, add_role_permissiom, delete_role_permission, get_role };
@@ -51,6 +52,7 @@ async fn rocket() -> _ {
     .manage(db_pool)
     .manage(TokenBlack::new())
     .manage(Mutex::new(HashMap::<String, CaptchaInfo>::new()))
+    .mount("/", Scalar::with_url("/apidoc", tools::apidoc::ApiDoc::openapi()))
     .mount(
         "/api", 
         routes![
