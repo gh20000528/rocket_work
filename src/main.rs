@@ -1,3 +1,5 @@
+#[macro_use]
+extern  crate rocket;
 
 // import rocket 
 use std::sync::Mutex;
@@ -9,6 +11,7 @@ use utoipa_scalar::{Scalar, Servable};
 
 use crate::controllers::user_controller::{ get_users, register, generate_captcha_handler, login, logout, TokenBlack, get_userinfo, soft_delete_user, edit_password };
 use crate::controllers::permission_controller::{ permission_list, get_role_permission, add_role_permissiom, delete_role_permission, get_role };
+use crate::controllers::worklist_controller::{worklist_setting, sync_worklist};
 use crate::models::captcha::CaptchaInfo;
 
 mod db;
@@ -17,8 +20,7 @@ mod models;
 mod controllers;
 mod tools;
 
-#[macro_use]
-extern  crate rocket;
+
 
 #[launch]
 async fn rocket() -> _ {
@@ -68,7 +70,9 @@ async fn rocket() -> _ {
             get_role_permission,
             add_role_permissiom, 
             delete_role_permission,
-            get_role
+            get_role,
+            worklist_setting,
+            sync_worklist,
         ]
     )
 }
