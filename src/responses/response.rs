@@ -1,9 +1,9 @@
 use crate::models::user::UserWithRole;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use utoipa::ToResponse;
 use uuid::Uuid;
 
-#[derive(Serialize, ToResponse)]
+#[derive(Serialize, ToResponse, Deserialize)]
 pub struct GenericResponse {
     pub status: String,
     pub message: String,

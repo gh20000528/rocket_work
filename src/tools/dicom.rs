@@ -42,7 +42,7 @@ pub async fn run(setting: &WorklistSettingReq) -> Result<Vec<DicomData>, Error> 
     let addr = setting.port.clone(); // 替換為你的SCP地址
     let calling_ae_title = setting.calling_ae_title.clone(); // 呼叫的 AE 標題
     let called_ae_title = setting.called_ae_title.clone(); // 被呼叫的 AE 標題（替換為 SCP 的 AE 標題）
-    let max_pdu_length = 16384; // 最大 PDU 長度
+    let max_pdu_length = 65536; // 最大 PDU 長度
     let verbose = true; // 是否顯示詳細日誌
 
     // 設置全局日誌記錄
@@ -206,6 +206,10 @@ pub async fn run(setting: &WorklistSettingReq) -> Result<Vec<DicomData>, Error> 
                         .context(DumpOutputSnafu)?;
 
                     let modality = extract_modality(&dcm);
+                    if modality.is_none() {
+                        println!("modality is None");
+                    }
+
                     // 将 DICOM 数据转换为 JSON 格式
                     let dicom_data = DicomData {
                         accession_number: dcm.get(tags::ACCESSION_NUMBER).map_or("".to_string(), |v| v.to_str().unwrap_or(std::borrow::Cow::Borrowed("")).to_string()),
@@ -214,7 +218,7 @@ pub async fn run(setting: &WorklistSettingReq) -> Result<Vec<DicomData>, Error> 
                         patient_id: dcm.get(tags::PATIENT_ID).map_or("".to_string(), |v| v.to_str().unwrap_or(std::borrow::Cow::Borrowed("")).to_string()),
                         patient_sex: dcm.get(tags::PATIENT_SEX).map_or("".to_string(), |v| v.to_str().unwrap_or(std::borrow::Cow::Borrowed("")).to_string()),
                         patient_birth_date: dcm.get(tags::PATIENT_BIRTH_DATE).map_or("".to_string(), |v| v.to_str().unwrap_or(std::borrow::Cow::Borrowed("")).to_string()),
-                        modality: modality.expect("REASON"),
+                        modality: modality.unwrap_or("DefaultModality".to_string()),
                     };
 
                     dicom_data_list.push(dicom_data);
